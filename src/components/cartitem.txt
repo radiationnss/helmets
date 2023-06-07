@@ -1,0 +1,52 @@
+<template>
+    <div class="box">
+        <img :src="item.product.get_thumbnail">
+        <div class="content">
+            <h3><router-link :to="item.product.get_absolute_url">{{ item.product.name }}</router-link></h3>
+            <h4>Price: ${{ item.product.price }}</h4>
+            <div class="unit">Quantity: <a @click="incrementQuantity(item)">+</a> {{item.quantity}} <a @click="decrementQuantity(item)">-</a></div>
+            <button class="delet btn-area" @click="removeFromCart(item)"><i aria-hidden="true" class="fa fa-trash"></i> <span class="btn2">Remove</span></button>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    name: 'CartItem',
+    props: {
+        initialItem: Object
+    },
+    data() {
+        return {
+            item: this.initialItem
+        }
+    },
+    methods: {
+        getItemTotal(item) {
+            return item.quantity * item.product.price
+        },
+        decrementQuantity(item) {
+            item.quantity -= 1
+
+            if (item.quantity === 0) {
+                this.$emit('removeFromCart', item)
+            }
+
+            this.updateCart()
+        },
+        incrementQuantity(item) {
+            item.quantity += 1
+
+            this.updateCart()
+        },
+        updateCart() {
+            localStorage.setItem('cart', JSON.stringify(this.$store.state.cart))
+        },
+        removeFromCart(item) {
+            this.$emit('removeFromCart', item)
+
+            this.updateCart()
+        },
+    },
+}
+</script>

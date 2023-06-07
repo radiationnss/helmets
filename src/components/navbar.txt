@@ -1,0 +1,134 @@
+<script>
+  import NavbarLink from './NavbarLink.vue';
+  import axios from 'axios';
+  import {collapsed, toggleSidebar, sidebarWidth } from './state'
+  export default {
+    props: {},
+    components: {NavbarLink},
+    data() {
+      return {collapsed,
+              toggleSidebar,
+              sidebarWidth,
+              cart: {
+                items: []
+              }
+       }
+    },
+    methods:{
+      logout() {
+                axios.defaults.headers.common["Authorization"] = ""
+
+                localStorage.removeItem("token")
+                localStorage.removeItem("username")
+                localStorage.removeItem("userid")
+
+                this.$store.commit('removeToken')
+
+                this.$router.push('/')
+            }
+    },
+    mounted() {
+      this.cart = this.$store.state.cart
+    },
+    computed: {
+      cartTotalLength() {
+        let totalLength = 0
+
+        for (let i = 0; i< this.cart.items.length; i++) {
+          totalLength += this.cart.items[i].quantity
+        }
+
+        return totalLength
+      }
+    }
+  }
+</script>
+
+<template>
+    <div class="sidebar sticky-right" :style="{width: sidebarWidth}">
+      <h1>
+        <span v-if="collapsed">
+          <div>H</div>
+          <div>P</div>
+        </span>
+        <span v-else>Helmet Pasal</span>
+      </h1>
+
+      <NavbarLink to="/" icon="fa-solid fa-house">Home</NavbarLink>
+      <NavbarLink to="/about" icon="fa-solid fa-circle-info">About</NavbarLink>
+      <NavbarLink to="/shop" icon="fa-solid fa-store">Shop</NavbarLink>
+      <NavbarLink to="/contact" icon="fa-solid fa-address-book">Contact</NavbarLink>
+      <div class="pt-4">
+        <div v-if="$store.state.isAuthenticated">
+          <NavbarLink to="/account" icon="fa-solid fa-user">Account</NavbarLink>
+          <button @click="logout()">logout</button>
+        </div>
+        <div v-else>
+          <NavbarLink to="/login" icon="fa-solid fa-user">Login</NavbarLink>
+        </div>
+        <NavbarLink to="/shop" icon="fa-solid fa-cart-shopping">Cart ({{ cartTotalLength }})</NavbarLink>
+      </div>
+      
+      
+      <span class="collapse-icon"
+        :class="{'rotate-180' : collapsed}"
+        @click="toggleSidebar">
+        <i class="fas fa-angle-double-left"></i>
+      </span>
+    </div>
+</template>
+
+
+
+<style>
+:root {
+  --sidebar-bg-color:#000000;
+  --sidebar-item-hover:#0047AB;
+  --sidebar-item-active:#FFCC00;
+}
+</style>
+
+<style scoped>
+.sidebar {
+  color: white;
+  background-color: var(--sidebar-bg-color);
+  z-index: 9999;
+  float: left;
+  position: absolute;
+  z-index: 2;
+  top: 0%;
+  left: 0;
+  bottom: 0;
+  padding: 0.5em;
+  height: auto;
+  transition: 0.3s ease;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.collapse-icon {
+  position: absolute;
+  bottom: 0;
+  padding: 0.75em;
+
+  color: #C0C0C0;
+
+  transition: 0.2s linear;
+}
+
+.login {
+  position: absolute;
+  bottom: 5%;
+  padding: 0.75em;
+  color: #C0C0C0;
+
+  transition: 0.2s linear;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: 0.2s linear;
+}
+
+</style>
